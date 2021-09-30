@@ -1,6 +1,8 @@
 # prova-frontend-JS
 Prova do estágio em JavaScript.
 
+**OBS:** abrir o index.html com a extensão _LiveServer_ do VSCode
+
 ## Objetivos: 
 * Carregar dados do arquivo JSON e transformá-los em uma lista HTML, preservando as posições e níveis de cada elemento;
 * Cascatear estados de check e inderteminate;
