@@ -5,18 +5,18 @@ fetch("./data.json")
 let myUL = document.createElement("ul")
 document.body.append(myUL)
 
-let listaInputs = []
-let pais = []
-let lis = []
+let inputsList = []
+let liList = []
+let dads = [] //guarda os valores que serão adicionados na dadsList(usada pelo storage dadsData)
 
 // localStorage.clear()
-let filhosDados = JSON.parse(localStorage.getItem('filhos')) || [];
-let paisDados = JSON.parse(localStorage.getItem('pais')) || [];
-let listaFilhos = []
-let listaPais = []
+let sonsData = JSON.parse(localStorage.getItem('sons')) || [];
+let dadsData = JSON.parse(localStorage.getItem('dads')) || [];
+let sonsList = []
+let dadsList = []
 
-let contadorFilhos = 0
-let contadorPais = 0
+let sonsCounter = 0
+let dadsCounter = 0
 
 function populateList(array){
     for (let i = 0; i < array.length; i++){
@@ -27,29 +27,22 @@ function populateList(array){
         check.addEventListener("click", clicked, false)
         li.appendChild(check)
 
+        sonsList = runData(sonsData)
+        dadsList = runData(dadsData)
 
-        for (f of filhosDados){
-            listaFilhos = f
-            break
-        }
-        for (p of paisDados){
-            listaPais = p
-            break
-        }
-
-        for (let j = 0; j < listaPais.length; j++){
-            for (let k = 0; k < listaFilhos.length; k++){
-                if (listaPais[j]==listaFilhos[k]){
-                    listaPais.splice(j, 1)
+        for (let j = 0; j < dadsList.length; j++){
+            for (let k = 0; k < sonsList.length; k++){
+                if (dadsList[j]==sonsList[k]){
+                    dadsList.splice(j, 1)
                 }
             }
         }
-        for (let j = 0; j < listaPais.length; j++){
-            if (listaPais[j] == contadorPais){
-                if(listaFilhos.find(isTrue)){
+        for (let j = 0; j < dadsList.length; j++){
+            if (dadsList[j] == dadsCounter){
+                if(sonsList.find(isTrue)){
                     check.checked = true
                     check.indeterminate = false
-                    listaPais.splice(j, 1)
+                    dadsList.splice(j, 1)
                     break
                 }
                 else{
@@ -58,15 +51,15 @@ function populateList(array){
                 }
             }
         }
-        contadorPais++
+        dadsCounter++
 
-        for (let f = 0; f<listaFilhos.length; f++){
-            if(listaFilhos[f]==contadorFilhos){
+        for (let f = 0; f<sonsList.length; f++){
+            if(sonsList[f]==sonsCounter){
                 check.checked = true
                 break
             }
         }
-        contadorFilhos++
+        sonsCounter++
 
         let label = document.createElement("label")
         label.textContent = array[i][1]['name']
@@ -78,7 +71,7 @@ function populateList(array){
         let item = []
         item.push(array[i][1]['name'])
         item.push(array[i][1]['level'])
-        listaInputs.push(item)
+        inputsList.push(item)
 
         switch(array[i][1]['level']){
             case 0:
@@ -129,11 +122,11 @@ function populateList(array){
     } 
 }
 
-//ideia: pegar todos os elementos do DOM e checar em qual nível está o nome único
-//enquanto o próximo elemento for de nível menor, o nome deve ganhar um check
+//ideia: pegar todos os elementos do DOM e checar em qual nível está o name único
+//enquanto o próximo elemento for de nível menor, o name deve ganhar um check
 
 //transformar json em array (como na função de cima)
-//percorrer o array até achar o nome
+//percorrer o array até achar o name
 //pegar o level
 //comparar os próximos elementos com o level
 //se forem menores, dar um check
@@ -143,167 +136,162 @@ function populateList(array){
 function clicked(){
     let inputs = document.getElementsByTagName('input')
     let li = document.getElementsByTagName('li')
-    let nome = this.parentNode.children[1].textContent
-    let nivel
-    let posicao
-    let filhos = []
+    let name = this.parentNode.children[1].textContent
+    let level
+    let position
+    let sons = []
 
-    for (let i = 0; i < listaInputs.length; i++){
-        if (listaInputs[i][0] == nome){
-            nivel = parseInt(listaInputs[i][1])
-            posicao = parseInt(i)
+    for (let i = 0; i < inputsList.length; i++){
+        if (inputsList[i][0] == name){
+            level = parseInt(inputsList[i][1])
+            position = parseInt(i)
             break
         }
         else{
-            pais.push(inputs[i])
-            lis.push(li[i])
+            dads.push(inputs[i])
+            liList.push(li[i])
         }
     }
-    let comparandoNivel = nivel+1
+    let comparingLevel = level+1
 
     if (this.checked){
-        listaFilhos = []
-        listaPais = []
-        listaFilhos.push(posicao)
-        while(comparandoNivel > nivel){
-            posicao++
-            comparandoNivel = parseInt(listaInputs[posicao][1], 10)
-            if (comparandoNivel > nivel){
-                filhos.push(listaInputs[posicao][0])
-                inputs[posicao].checked = true
-                inputs[posicao].indeterminate = false
-                listaFilhos.push(posicao)
+        sonsList = []
+        dadsList = []
+        sonsList.push(position)
+        while(comparingLevel > level){
+            position++
+            comparingLevel = parseInt(inputsList[position][1], 10)
+            if (comparingLevel > level){
+                sons.push(inputsList[position][0])
+                inputs[position].checked = true
+                inputs[position].indeterminate = false
+                sonsList.push(position)
             }
         }
 
-        filhosDados.pop()
-        var semRepetidos = listaFilhos.filter(function(el, i) {
-            return listaFilhos.indexOf(el) === i;
-        });
-        listaFilhos = semRepetidos
-        filhosDados.push(listaFilhos)
-        saveDadosToStorage()
+        noRepeat(sonsData, sonsList, "sons")
+        dads = ordenateDads()
 
-        var semRepPais = pais.filter(function(el, i) {
-            return pais.indexOf(el) === i;
-        });
-        pais = semRepPais
-
-        ordenacao = []
-        for (let i = 0; i < pais.length; i++){
-            for (let j = 0; j < pais.length; j++){
-                if (parseInt(pais[j].getAttribute('level')) == i){
-                    ordenacao.push(pais[j])
-                }
-            }
-        }
-        pais = ordenacao
-
-        for (let i = 0; i < pais.length; i++){
-            if (parseInt(pais[i].getAttribute('level')) >= nivel){
-                listaPais.splice(i, 1)
+        for (let i = 0; i < dads.length; i++){
+            if (parseInt(dads[i].getAttribute('level')) >= level){
+                dadsList.splice(i, 1)
             }
             else{
-                pais[i].indeterminate = true
-                lis[i].style.backgroundColor = "rgb(169, 199, 228)"
-                listaPais.push(i)
+                dads[i].indeterminate = true
+                liList[i].style.backgroundColor = "rgb(169, 199, 228)"
+                dadsList.push(i)
             }
         }
 
-        paisDados.pop()
-        var semRepeticao = listaPais.filter(function(el, i) {
-            return listaPais.indexOf(el) === i;
-        });
-        listaPais = semRepeticao
-        paisDados.push(listaPais)
-        savePaisToStorage()
+        noRepeat(dadsData, dadsList, "dads")
     }
     else{
-        while(comparandoNivel > nivel){
-            posicao++
-            comparandoNivel = parseInt(listaInputs[posicao][1], 10)
-            if (comparandoNivel > nivel){
-                filhos.splice(listaInputs[posicao][0], 1)
-                inputs[posicao].checked = false
-                inputs[posicao].indeterminate = false
+        while(comparingLevel > level){
+            position++
+            comparingLevel = parseInt(inputsList[position][1], 10)
+            if (comparingLevel > level){
+                sons.splice(inputsList[position][0], 1)
+                inputs[position].checked = false
+                inputs[position].indeterminate = false
             }
         }
-        filhosDados.pop()
-        var semRepetidos = filhos.filter(function(el, i) {
-            return filhos.indexOf(el) === i;
-        });
-        filhos = semRepetidos
-        filhosDados.push(filhos)
-        saveDadosToStorage()
         
-        for (let i = 0; i < pais.length; i++){
-            pais[i].indeterminate = false
-            lis[i].style.backgroundColor = ""
+        noRepeat(sonsData, sons, "sons")
+        
+        for (let i = 0; i < dads.length; i++){
+            dads[i].indeterminate = false
+            liList[i].style.backgroundColor = ""
         }
 
-        listaPais = pais
-        paisDados.pop()
-        var semRepeticao = listaPais.filter(function(el, i) {
-            return listaPais.indexOf(el) === i;
-        });
-        listaPais = semRepeticao
-        paisDados.push(listaPais)
-        savePaisToStorage()
+        noRepeat(dadsData, dads, "dads")
     }      
 }
 
 function hideAndShow(){
     let lis = document.getElementsByTagName('li')
-    let nome = this.parentNode.textContent
-    let nivel
-    let posicao
+    let name = this.parentNode.textContent
+    let level
+    let position
 
-    for (let i = 0; i < listaInputs.length; i++){
-        if (listaInputs[i][0] == nome){
-            nivel = parseInt(listaInputs[i][1])
-            posicao = parseInt(i)
+    for (let i = 0; i < inputsList.length; i++){
+        if (inputsList[i][0] == name){
+            level = parseInt(inputsList[i][1])
+            position = parseInt(i)
             break
         }
     }
-    let comparandoNivel = nivel+1
+    let comparingLevel = level+1
 
 
     if(this.getAttribute('visible')=='false'){
-        while(comparandoNivel > nivel){
-            posicao++
-            comparandoNivel = parseInt(listaInputs[posicao][1], 10)
-            if (comparandoNivel > nivel){
-                lis[posicao].style.display = "list-item"
+        while(comparingLevel > level){
+            position++
+            comparingLevel = parseInt(inputsList[position][1], 10)
+            if (comparingLevel > level){
+                lis[position].style.display = "list-item"
             }
         }
         this.setAttribute('visible', true)
         return 
     }
 
-    while(comparandoNivel > nivel){
-        posicao++
-        comparandoNivel = parseInt(listaInputs[posicao][1], 10)
-        if (comparandoNivel > nivel){
-            lis[posicao].style.display = "none"
+    while(comparingLevel > level){
+        position++
+        comparingLevel = parseInt(inputsList[position][1], 10)
+        if (comparingLevel > level){
+            lis[position].style.display = "none"
         }
         this.setAttribute('visible', false)
     }   
     return 
 }
 
-function savePaisToStorage(){
-    localStorage.setItem("pais", JSON.stringify(paisDados))
-}
-
-function saveDadosToStorage(){
-    localStorage.setItem("filhos", JSON.stringify(filhosDados))
+function saveToStorage(storage, variable){
+    localStorage.setItem(storage, JSON.stringify(variable))
 }
 
 function isTrue(){
-    for (let i=0; i < listaFilhos.length; i++){
-        for (let j=0; j < listaPais.length; j++){
-            return listaFilhos[i]==listaPais[j]
+    for (let i=0; i < sonsList.length; i++){
+        for (let j=0; j < dadsList.length; j++){
+            return sonsList[i]==dadsList[j]
         }
     }
     return false
+}
+
+function runData(browsed){
+    list = 0
+    for (b of browsed){
+        list = b
+        break
+    }
+    return list
+}
+
+function noRepeat(datas, list, storage){
+    datas.pop()
+    var noRepeat = list.filter(function(el, i) {
+        return list.indexOf(el) === i;
+    });
+    list = noRepeat
+    datas.push(list)
+    saveToStorage(storage, datas)
+}
+
+function ordenateDads(){
+    var noRepeatDads = dads.filter(function(el, i) {
+        return dads.indexOf(el) === i;
+    });
+    dads = noRepeatDads
+
+    ordering = []
+    for (let i = 0; i < dads.length; i++){
+        for (let j = 0; j < dads.length; j++){
+            if (parseInt(dads[j].getAttribute('level')) == i){
+                ordering.push(dads[j])
+            }
+        }
+    }
+
+    return ordering
 }
